@@ -58,6 +58,11 @@ async function submitForm() {
         document.getElementById('submit').disabled = false;
         return;
     }
+    if (document.getElementById('matriculaOpo').value.length != 8){
+        alert('Ingrese una Matricula correcta: 8 dígitos.');
+        document.getElementById('submit').disabled = false;
+        return;
+    }
     if (document.getElementById('servicio').value=="Otro"){
         serviciovalue = document.getElementById('serviciotxt').value;
         if (serviciovalue == ''){
