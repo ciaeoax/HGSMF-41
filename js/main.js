@@ -5,12 +5,16 @@ document.getElementById('categoria').addEventListener('change', function(event){
 });
 document.getElementById('omision').addEventListener('change', function(event){
     document.getElementById('guantes').disabled = false;
+    document.getElementById('fm').checked = false;
+    document.getElementById('lm').checked = false;
 });
 document.getElementById('fm').addEventListener('change', function(event){
+    document.getElementById('omision').checked = false;
     document.getElementById('guantes').disabled = true;
     document.getElementById('guantes').checked = false;
 });
 document.getElementById('lm').addEventListener('change', function(event){
+    document.getElementById('omision').checked = false;
     document.getElementById('guantes').disabled = true;
     document.getElementById('guantes').checked = false;
 });
@@ -40,7 +44,7 @@ document.getElementById('categoria').addEventListener('change', function(event){
 async function submitForm() {
     document.getElementById('submit').disabled = true;
     if (typeof initTime === 'undefined'){
-        alert('Cambie Categoría a otro valor y regrese al valor original.');
+        alert('Cambie Categoría a cualquier otro valor y regrese al valor original.');
         document.getElementById('submit').disabled = false;
         return;
     }
@@ -74,28 +78,36 @@ async function submitForm() {
     }else{
         categoriavalue = document.getElementById('categoria').value;
     }
-            //window.confirm("Se registrará otra oportunidad a la anterior?");
+    const indicaciones = document.querySelectorAll('input[name="indicacion"]');
+    const selected_ind = Array.from(indicaciones).some(indicacion => indicacion.checked);
+    const values_ind = Array.from(indicaciones).filter(indicacion => indicacion.checked).map(indicacion => indicacion.value.toUpperCase());
+    if (!selected_ind){
+        alert('Seleccione al menos una indicación.')
+        return;
+    }
+    //console.log(values_ind);
+    //window.confirm("Se registrará otra oportunidad a la anterior?");
 
     endTime = new Date();
     var time = endTime - initTime;
     var minutes = Math.floor(time/(1000*60)).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false});
-    var seconds = Math.floor(time/1000).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false});
-    var mseconds = time - (seconds*1000);
+    var seconds = Math.floor(time/1000).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false}) - (minutes * 60);
+    var mseconds = time - (seconds * 1000) - (minutes * 60 * 1000);
     var duracion = minutes + ":" + seconds + "." + mseconds;    
     const formData = {
-        turno: document.getElementById('turno').value,
-        servicio: serviciovalue,
-        nombre: document.getElementById('nombre').value,
+        turno: document.getElementById('turno').value.toUpperCase(),
+        servicio: serviciovalue.toUpperCase(),
+        nombre: document.getElementById('nombre').value.toUpperCase(),
         matricula: document.getElementById('matricula').value,
-        categoria: categoriavalue,
-        indicacion: document.querySelector("input[name=indicacion]:checked").value,
-        accion: document.querySelector("input[name=accion]:checked").value,
+        categoria: categoriavalue.toUpperCase(),
+        indicacion: values_ind, //document.querySelector("input[name=indicacion]:checked").value.toUpperCase(),
+        accion: document.querySelector("input[name=accion]:checked").value.toUpperCase(),
         guantes: document.getElementById('guantes').checked,
         time: duracion,
         matricula2: document.getElementById('matriculaOpo').value
     };
     try {
-        const response = await fetch('https://script.google.com/macros/s/AKfycbyl00NpzfIRNT7Mzep9XjjrHyzGUDWwcKzG7BOhCdyWanyPOEHN6HdRVXMqeF3IGDOP/exec', { // Replace with your Google Apps Script URL
+        const response = await fetch('https://script.google.com/macros/s/AKfycbzl-YlYIZOL-iUL1PGr26-I-LZ6NL0Jh8FfcczA3wENyNfsZeyF4SMT4_K0HOtpWzt9EQ/exec', { // Replace with your Google Apps Script URL
             method: 'POST',
             headers: {
                 'Content-Type': 'text/plain;charset=utf-8'
@@ -114,18 +126,15 @@ async function submitForm() {
                 document.getElementById(i.toString()).checked = false;
                 document.getElementById(i.toString()).disabled = false;
             }
-            console.log('Data saved and received:', result.data[0]["oportunidad"]);
+            console.log('Data saved and received:', result.data[0]["oportunidad"], formData);
             //document.getElementById('result').textContent = JSON.stringify(result.data, null, 2);
             alert('Información registrada correctamente.');
-            //console.log('Exito:', serviciovalue, categoriavalue);
-            //document.getElementById('categoria').value = '';
             document.getElementById('guantes').checked = false;
-            document.querySelector("input[name=indicacion]:checked").checked = false;
+            //document.querySelector("input[name=indicacion]:checked").checked = false;
             document.querySelector("input[name=accion]:checked").checked = false;
             document.getElementById('categoriatag').hidden = true;
             document.getElementById('categoriatxt').hidden = true;
-            document.getElementById('categoriatxt').value = '';        
-            //document.getElementById('matriculaOpo').value = '';
+            document.getElementById('categoriatxt').value = '';
             valor = valor + 1;
             document.getElementById('submit').disabled = false;
             for (var i = 1; i <= result.data.length; i++) {
@@ -135,6 +144,9 @@ async function submitForm() {
             document.getElementById((result.data.length+1).toString()).checked = true;
             for (var i = result.data.length+2; i <= 8; i++) {
                 document.getElementById(i.toString()).disabled = true;
+            }
+            for (var i = 1; i <= 5; i++) {
+                document.getElementById('indicacion'+i.toString()).checked = false;
             }
         } else {
             console.error('Error:', result.message);
