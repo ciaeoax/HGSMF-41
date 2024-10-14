@@ -107,7 +107,7 @@ async function submitForm() {
         matricula2: document.getElementById('matriculaOpo').value
     };
     try {
-        const response = await fetch('https://script.google.com/macros/s/AKfycbzl-YlYIZOL-iUL1PGr26-I-LZ6NL0Jh8FfcczA3wENyNfsZeyF4SMT4_K0HOtpWzt9EQ/exec', { // Replace with your Google Apps Script URL
+        const response = await fetch('https://script.google.com/macros/s/AKfycbyl00NpzfIRNT7Mzep9XjjrHyzGUDWwcKzG7BOhCdyWanyPOEHN6HdRVXMqeF3IGDOP/exec', { // Replace with your Google Apps Script URL
             method: 'POST',
             headers: {
                 'Content-Type': 'text/plain;charset=utf-8'
